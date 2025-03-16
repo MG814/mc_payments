@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3.13"
 services:
   db-payments:
     image: postgres
@@ -12,6 +12,15 @@ services:
       - "5436:5432"
     networks:
       - mc_network
+  stripe:
+    image: stripe/stripe-cli
+    container_name: stripe
+    volumes:
+      - ./src:/app/src
+    command: listen --forward-to http://web-payments:8500/webhook/
+    networks:
+      - mc_network
+
   web-payments:
     build: .
     command: python src/manage.py runserver 0.0.0.0:8500
@@ -23,6 +32,29 @@ services:
       - mc_network
     depends_on:
       - db-payments
+      - redis
+      - celery-worker
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6380:6380"
+    networks:
+      - mc_network
+
+  celery-worker:
+    build: .
+    command: celery -A src.core worker --loglevel=info
+    depends_on:
+      - redis
+    volumes:
+      - ./src:/app/src
+    environment:
+      - PYTHONPATH=/app/src
+      - DJANGO_SETTINGS_MODULE=src.core.settings
+    networks:
+      - mc_network
+
 networks:
   mc_network:
     external: true
