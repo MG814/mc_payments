@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "MC Payments"
+version = "0.1.0"
+description = ""
+authors = ["MICHAŁ"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+bandit = "1.7.9"
+celery = "5.4.0"
+coverage = "7.6.1"
+django = "5.1"
+django-environ = "0.11.2"
+psycopg2-binary = "^2.9.10"
+python = "^3.13"
+pytest = "8.3.4"
+redis = "5.0.8"
+requests = "2.32.3"
+ruff = "0.6.3"
+safety = "3.2.7"
+safety-schemas = "0.0.5"
+stripe = "11.1.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

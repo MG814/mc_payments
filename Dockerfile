@@ -1,6 +1,10 @@
-FROM python:3.12
+FROM python:3.13
+ENV PYTHONUNBUFFERED=1
+ENV POETRY_VIRTUALENVS_CREATE=False
 WORKDIR /app
-COPY src/requirements.txt /app/
-RUN pip install -r requirements.txt
+COPY pyproject.toml /app/
+COPY poetry.lock /app/
+RUN pip install poetry
+RUN poetry install
 
 COPY . /app
