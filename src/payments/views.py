@@ -1,27 +1,25 @@
 import json
-
 import stripe
-
-from django.http import JsonResponse
-
-from django.http import HttpResponse
+import logging
 import requests
 
+from django.http import JsonResponse
+from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 
 from payments.email_utils import send_email
-import logging
+from core.settings import YOUR_DOMAIN, VISITS_SERVICE_URL
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
 
 #Zamiast django dać DRF
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateCheckoutSessionView(View):
     def post(self, request, *args, **kwargs):
-        YOUR_DOMAIN = "http://127.0.0.1:8500"
 
         try:
             request_data = json.loads(request.body)
@@ -37,7 +35,7 @@ class CreateCheckoutSessionView(View):
                 line_items=[
                     {
                         'price_data': {
-                            'currency': 'usd',
+                            'currency': 'pln',
                             'product_data': {
                                 'name': name,
                             },
@@ -78,11 +76,11 @@ def notify_stripe_view(request):
         if event["type"] == "checkout.session.completed":
             visit_id = event['data']['object']['metadata']['visit_id']
 
-            api_gateway_url = f'http://web-visits:8600/visits/{visit_id}/'
+            visits_url = f'{VISITS_SERVICE_URL}/visits/{visit_id}/'
 
             data = {'is_paid': True}
 
-            response = requests.patch(api_gateway_url, json=data)
+            response = requests.patch(visits_url, json=data)
 
             if response.status_code == 200:
                 logging.info(f"Visit {visit_id} updated to paid successfully.")
@@ -98,7 +96,6 @@ def notify_stripe_view(request):
                 event["data"]["object"]["id"],
             )
             patient_email = charge.get('billing_details').get('email')
-            print(patient_email)
             try:
                 send_email.delay(receipt_url=charge.get('receipt_url'), patient_email=patient_email)
             except (KeyError, IndexError, AttributeError, TypeError, ValueError) as e:
