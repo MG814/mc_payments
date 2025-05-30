@@ -66,8 +66,8 @@ jobs:
         poetry run bandit -r src
     - name: Run Ruff
       run: |
-        poetry ruff check src
+        ruff check src
     - name: Run Safety
       run: |
-        poetry safety check
+        safety check
       continue-on-error: true
