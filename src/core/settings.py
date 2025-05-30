@@ -157,3 +157,6 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'wenomus@gmail.com'
 EMAIL_HOST_PASSWORD = 'wxna ynjm xwhr cgbj '
 DEFAULT_EMAIL = 'wenomus@gmail.com'
+
+YOUR_DOMAIN = "http://127.0.0.1:8500"
+VISITS_SERVICE_URL = "http://web-visits:8600"
