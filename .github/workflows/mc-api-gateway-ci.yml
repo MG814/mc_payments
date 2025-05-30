@@ -42,9 +42,9 @@ jobs:
     - name: Run Tests
       run: |
         cd src
-        coverage run manage.py test
-        coverage report
-        coverage xml
+        poetry run coverage run manage.py test
+        poetry run coverage report
+        poetry run coverage xml
       env:
         DB_NAME: ${{ vars.DB_NAME }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
