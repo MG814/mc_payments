@@ -80,7 +80,7 @@ def notify_stripe_view(request):
 
             data = {'is_paid': True}
 
-            response = requests.patch(visits_url, json=data)
+            response = requests.patch(visits_url, json=data, timeout=10)
 
             if response.status_code == 200:
                 logging.info(f"Visit {visit_id} updated to paid successfully.")

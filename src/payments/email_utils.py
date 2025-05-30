@@ -8,7 +8,7 @@ from celery import shared_task
 def send_email(receipt_url, patient_email) -> None:
     django_send_mail(subject='Successful Payment',
                      message=f'{receipt_url}',
-                     from_email=settings.DEFAULT_EMAIL,
+                     from_email=settings.EMAIL_HOST_USER ,
                      recipient_list=[patient_email],
                      fail_silently=False
                      )

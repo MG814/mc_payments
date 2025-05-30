@@ -54,6 +54,8 @@ jobs:
         STRIPE_PUBLIC_KEY: ${{ secrets.STRIPE_PUBLIC_KEY }}
         STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         ENDPOINT_SECRET: ${{ secrets.ENDPOINT_SECRET }}
+        EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+        EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v5
       with:

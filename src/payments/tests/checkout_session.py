@@ -25,9 +25,9 @@ class TestCreateCheckoutSessionView(TestCase):
             content_type="application/json",
         )
 
-        assert response.status_code == 200
-        assert "url" in response.json()
-        assert response.json()["url"] == "https://checkout.stripe.com/test_session"
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("url", response.json())
+        self.assertEqual(response.json()["url"], "https://checkout.stripe.com/test_session")
 
     def test_create_checkout_session_missing_price(self):
         del self.valid_data["price"]
@@ -37,9 +37,8 @@ class TestCreateCheckoutSessionView(TestCase):
             data=json.dumps(self.valid_data),
             content_type="application/json",
         )
-
-        assert response.status_code == 400
-        assert response.json() == {"error": "Price is required"}
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["error"], "Price is required")
 
     @patch("stripe.checkout.Session.create", side_effect=Exception("Stripe error"))
     def test_create_checkout_session_exception(self):
@@ -49,6 +48,6 @@ class TestCreateCheckoutSessionView(TestCase):
             content_type="application/json",
         )
 
-        assert response.status_code == 500
-        assert "error" in response.json()
-        assert response.json()["error"] == "Stripe error"
+        self.assertEqual(response.status_code, 500)
+        self.assertIn("error", response.json())
+        self.assertEqual(response.json()["error"], "Stripe error")
