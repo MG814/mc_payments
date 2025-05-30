@@ -50,6 +50,9 @@ jobs:
         DB_USER: ${{ vars.DB_USER }}
         DB_PORT: ${{ vars.DB_PORT }}
         DB_HOST: ${{ vars.DB_HOST }}
+        STRIPE_PUBLIC_KEY: ${{ secrets.STRIPE_PUBLIC_KEY }}
+        STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        ENDPOINT_SECRET: ${{ secrets.ENDPOINT_SECRET }}
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v5
       with:
@@ -60,7 +63,7 @@ jobs:
         bandit -r src
     - name: Run Ruff
       run: |
-        ruff src
+        ruff check src
     - name: Run Safety
       run: |
         safety check
