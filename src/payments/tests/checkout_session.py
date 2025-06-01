@@ -25,6 +25,7 @@ class TestCreateCheckoutSessionView(TestCase):
             content_type="application/json",
         )
 
+        mock_stripe_create.assert_called_once()
         self.assertEqual(response.status_code, 200)
         self.assertIn("url", response.json())
         self.assertEqual(response.json()["url"], "https://checkout.stripe.com/test_session")
@@ -40,14 +41,18 @@ class TestCreateCheckoutSessionView(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["error"], "Price is required")
 
-    @patch("stripe.checkout.Session.create", side_effect=Exception("Stripe error"))
-    def test_create_checkout_session_exception(self):
+    @patch("stripe.checkout.Session.create")
+    def test_stripe_create_called_with_correct_params(self, mock_stripe_create):
+        mock_stripe_create.return_value.url = "https://checkout.stripe.com/test_session"
+
         response = self.client.post(
             reverse("create-checkout-session"),
             data=json.dumps(self.valid_data),
             content_type="application/json",
         )
+        mock_stripe_create.assert_called_once()
+        _, kwargs = mock_stripe_create.call_args
 
-        self.assertEqual(response.status_code, 500)
-        self.assertIn("error", response.json())
-        self.assertEqual(response.json()["error"], "Stripe error")
+        self.assertEqual(kwargs["payment_method_types"], ['card'])
+        self.assertEqual(kwargs["line_items"][0]["price_data"]["unit_amount"], 10000)
+        self.assertEqual(kwargs["metadata"]["visit_id"], self.valid_data["visit_id"])
