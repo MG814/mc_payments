@@ -45,7 +45,7 @@ class TestCreateCheckoutSessionView(TestCase):
     def test_stripe_create_called_with_correct_params(self, mock_stripe_create):
         mock_stripe_create.return_value.url = "https://checkout.stripe.com/test_session"
 
-        response = self.client.post(
+        self.client.post(
             reverse("create-checkout-session"),
             data=json.dumps(self.valid_data),
             content_type="application/json",
