@@ -69,7 +69,6 @@ def notify_stripe_view(request):
         )
     except (stripe.error.StripeError, KeyError, IndexError, AttributeError, TypeError, ValueError) as e:
         logging.error(f'SignatureVerifcationError: {str(e)}')
-        # Invalid signature
         return HttpResponse(status=400)
 
     try:

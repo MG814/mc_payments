@@ -39,12 +39,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry
         poetry install
+      env:
+        POETRY_VIRTUALENVS_CREATE: false
     - name: Run Tests
       run: |
         cd src
-        poetry run coverage run manage.py test
-        poetry run coverage report
-        poetry run coverage xml
+        coverage run manage.py test
+        coverage report
+        coverage xml
       env:
         DB_NAME: ${{ vars.DB_NAME }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
@@ -63,11 +65,11 @@ jobs:
         slug: MG814/mc_payments
     - name: Run Bandit
       run: | 
-        poetry run bandit -r src
+        bandit -r src
     - name: Run Ruff
       run: |
-        poetry run ruff check src
+        ruff check src
     - name: Run Safety
       run: |
-        poetry run safety check
+        safety check
       continue-on-error: true
