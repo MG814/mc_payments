@@ -12,11 +12,11 @@ from django.conf import settings
 
 from payments.email_utils import send_email
 from core.settings import YOUR_DOMAIN, VISITS_SERVICE_URL
+from payments.models import Payments
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
-#Zamiast django dać DRF
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateCheckoutSessionView(View):
     def post(self, request, *args, **kwargs):
@@ -26,6 +26,8 @@ class CreateCheckoutSessionView(View):
             price = request_data.get('price')
             name = request_data.get('name')
             visit_id = request_data.get('visit_id')
+            patient_id = request_data.get('patient_id')
+            doctor_id = request_data.get('doctor_id')
 
             if price is None:
                 return JsonResponse({'error': 'Price is required'}, status=400)
@@ -48,8 +50,20 @@ class CreateCheckoutSessionView(View):
                 success_url=YOUR_DOMAIN + '/admin/',
                 cancel_url=YOUR_DOMAIN + '/admin/',
                 metadata={
-                    'visit_id': visit_id
+                    'visit_id': visit_id,
+                    'patient_id': patient_id,
+                    'doctor_id': doctor_id
                 }
+            )
+
+            Payments.objects.create(
+                patient_id=patient_id,
+                doctor_id=doctor_id,
+                title=name or 'Wizyta lekarska',
+                price=float(price),
+                stripe_session_id=checkout_session.id,
+                visit_id=visit_id,
+                is_completed=False
             )
 
             return JsonResponse({'url': checkout_session.url})
@@ -73,7 +87,15 @@ def notify_stripe_view(request):
 
     try:
         if event["type"] == "checkout.session.completed":
+            session_id = event['data']['object']['id']
             visit_id = event['data']['object']['metadata']['visit_id']
+            try:
+                payment = Payments.objects.get(stripe_session_id=session_id)
+                payment.is_completed = True
+                payment.save()
+                logging.info(f"Payment {payment.id} marked as completed")
+            except Payments.DoesNotExist:
+                logging.error(f"Payment with session_id {session_id} not found")
 
             visits_url = f'{VISITS_SERVICE_URL}/visits/{visit_id}/'
 
