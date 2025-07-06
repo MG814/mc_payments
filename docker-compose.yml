@@ -37,7 +37,7 @@ services:
     networks:
       - mc_network
     depends_on:
-      db-visits:
+      db-payments:
         condition: service_healthy
       redis:
         condition: service_started

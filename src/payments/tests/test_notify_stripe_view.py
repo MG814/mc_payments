@@ -3,6 +3,8 @@ from unittest.mock import patch
 from django.test import TestCase, Client
 from django.urls import reverse
 
+from payments.models import Payments
+
 
 class TestNotifyStripeView(TestCase):
     def setUp(self):
@@ -43,10 +45,20 @@ class TestNotifyStripeView(TestCase):
     @patch('stripe.Webhook.construct_event')
     @patch('requests.patch')
     def test_failed_visit_update(self, mock_patch, mock_construct):
+        Payments.objects.create(
+            patient_id="12",
+            doctor_id="23",
+            title="Test Payment",
+            price=100.0,
+            stripe_session_id="cs_test_session_123",
+            visit_id="123",
+            is_completed=False
+        )
         mock_construct.return_value = {
             "type": "checkout.session.completed",
             "data": {
                 "object": {
+                    "id": "cs_test_session_123",
                     "metadata": {
                         "visit_id": "123"
                     }
