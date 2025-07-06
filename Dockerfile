@@ -6,5 +6,7 @@ COPY pyproject.toml /app/
 COPY poetry.lock /app/
 RUN pip install poetry
 RUN poetry install
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 COPY . /app
